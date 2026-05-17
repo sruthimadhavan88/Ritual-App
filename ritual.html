@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Ritual</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#F5F0E8; --surface:#FDFAF4; --navy:#3B4A2F; --blue:#5C7A3E;
+    --accent:#7A9E57; --green:#6B8F4E; --red:#C0624A; --text:#2C2C1E;
+    --sub:#7A7560; --border:#DDD8C4; --mist:#EDE8D8; --gold:#C4A84F;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;padding-bottom:90px}
+
+  /* ── SAFARI BANNER ── */
+  .safari-banner{
+    background:#2C3520;color:#fff;padding:12px 16px;
+    display:flex;align-items:flex-start;gap:12px;
+    font-size:12px;line-height:1.5;
+    border-bottom:2px solid var(--gold);
+  }
+  .safari-banner-icon{font-size:22px;flex-shrink:0;margin-top:1px}
+  .safari-banner strong{display:block;font-size:13px;margin-bottom:2px;color:var(--gold)}
+  .safari-banner-close{
+    margin-left:auto;flex-shrink:0;
+    background:rgba(255,255,255,0.1);border:none;color:#fff;
+    border-radius:50%;width:24px;height:24px;font-size:14px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+
+  /* ── HEADER ── */
+  header{background:var(--navy);padding:18px 20px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+  .logo{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;letter-spacing:5px;color:#fff;text-transform:uppercase}
+  .logo em{color:var(--gold);font-style:normal}
+  .date-pill{font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.1);border-radius:20px;padding:5px 12px}
+
+  /* ── GREETING ── */
+  .greeting{background:linear-gradient(135deg,var(--navy) 0%,#4A5E36 100%);padding:18px 20px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .greeting-left{flex:1}
+  .greeting-hi{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;color:#fff;font-weight:300;margin-bottom:3px}
+  .greeting-sub{font-size:12px;color:rgba(255,255,255,0.55)}
+
+  .ring-wrap{position:relative;width:58px;height:58px;flex-shrink:0}
+  .ring-svg{transform:rotate(-90deg);width:58px;height:58px}
+  .ring-bg{fill:none;stroke:rgba(255,255,255,0.15);stroke-width:5}
+  .ring-fill{fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset 0.6s ease;stroke-dasharray:157;stroke-dashoffset:157}
+  .ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;line-height:1}
+  .ring-label span{font-size:9px;font-weight:400;color:rgba(255,255,255,0.5);margin-top:2px}
+
+  /* ── TABS ── */
+  .tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 8px;position:sticky;top:60px;z-index:30}
+  .tab{flex:1;padding:12px 8px;font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--sub);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all 0.2s}
+  .tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+  /* ── MAIN ── */
+  main{padding:18px 14px;max-width:640px;margin:0 auto}
+
+  /* ── QUOTE ── */
+  .quote-card{background:var(--navy);border-radius:16px;padding:20px 22px;margin-bottom:18px;position:relative;overflow:hidden}
+  .quote-card::before{content:'"';position:absolute;top:-14px;right:14px;font-family:'Cormorant Garamond',serif;font-size:90px;color:rgba(255,255,255,0.06);line-height:1}
+  .quote-text{font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;font-weight:300;color:rgba(255,255,255,0.9);line-height:1.65;margin-bottom:10px;position:relative;z-index:1}
+  .quote-author{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);position:relative;z-index:1}
+
+  /* ── SWIPE HINT ── */
+  .swipe-hint{display:flex;align-items:center;justify-content:center;gap:14px;font-size:11px;color:var(--sub);margin-bottom:10px}
+  .sh-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+  .sh-dot.r{background:#E0F7ED;color:var(--green)}
+  .sh-dot.l{background:#FFE8E8;color:var(--red)}
+
+  /* ── CARD WRAPPER ── */
+  .card-wrapper{position:relative;border-radius:14px;overflow:hidden;margin-bottom:10px}
+  .swipe-bg{position:absolute;inset:0;display:flex;align-items:center;padding:0 22px;border-radius:14px;pointer-events:none;opacity:0;transition:opacity 0.1s}
+  .swipe-bg.r{background:#6B8F4E;justify-content:flex-start}
+  .swipe-bg.l{background:#C0624A;justify-content:flex-end}
+  .swipe-bg-lbl{font-size:15px;color:#fff;font-weight:700}
+
+  /* ── ROUTINE CARD ── */
+  .routine-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;position:relative;user-select:none;touch-action:pan-y;will-change:transform;z-index:1}
+  .routine-card.dragging{transition:none}
+  .routine-card.done{background:#F4FFF9;border-color:#B8EDD4}
+  .routine-card::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 2px 2px 0;background:var(--border);transition:background 0.3s}
+  .routine-card.done::before{background:var(--green)}
+
+  .r-icon{width:44px;height:44px;border-radius:12px;background:var(--mist);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+  .routine-card.done .r-icon{background:#D9F5E9}
+  .r-info{flex:1;min-width:0}
+  .r-name{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .routine-card.done .r-name{text-decoration:line-through;color:var(--sub)}
+  .r-meta{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .mpill{background:var(--mist);border-radius:20px;padding:2px 8px;font-size:11px;color:var(--blue);font-weight:500}
+  .r-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+  .btn-ic{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--sub);transition:all 0.15s}
+  .btn-ic:active{transform:scale(0.88)}
+  .btn-ic.play{background:#EDF3E6;border-color:#C2D4AE;color:var(--blue)}
+  .btn-ic.play:active{background:var(--blue);color:#fff}
+  .chk{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:transparent;font-size:13px;transition:all 0.25s}
+  .routine-card.done .chk{background:var(--green);border-color:var(--green);color:#fff}
+
+  /* ── ADD BTN ── */
+  .add-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 18px;background:var(--surface);border:2px dashed var(--border);border-radius:14px;cursor:pointer;color:var(--sub);font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;width:100%;margin-top:4px;transition:all 0.2s}
+  .add-btn:active{background:var(--mist);border-color:var(--accent);color:var(--blue)}
+
+  /* ── EMPTY ── */
+  .empty{text-align:center;padding:50px 20px;color:var(--sub)}
+  .empty-ico{font-size:50px;margin-bottom:12px}
+  .empty-ttl{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--navy);margin-bottom:8px}
+  .empty-sub{font-size:13px;line-height:1.7}
+
+  /* ── STATS ── */
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+  .stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:18px;text-align:center}
+  .stat-n{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--navy);line-height:1;margin-bottom:5px}
+  .stat-l{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--sub)}
+  .streak-dots{display:flex;gap:5px;justify-content:center;margin-top:8px}
+  .sdot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+  .sdot.on{background:var(--gold)}
+
+  /* ── MODAL ── */
+  .overlay{position:fixed;inset:0;background:rgba(17,24,39,0.6);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
+  .overlay.open{opacity:1;pointer-events:all}
+  .modal{background:var(--surface);border-radius:22px 22px 0 0;padding:24px 20px 38px;width:100%;max-width:600px;transform:translateY(40px);transition:transform 0.35s cubic-bezier(0.34,1.4,0.64,1);max-height:92vh;overflow-y:auto}
+  .overlay.open .modal{transform:translateY(0)}
+  .modal-handle{width:34px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 18px}
+  .modal-ttl{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--navy);margin-bottom:20px}
+  .fg{margin-bottom:14px}
+  .fl{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub);font-weight:600;margin-bottom:6px}
+  .fi{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);background:var(--surface);outline:none;transition:border-color 0.2s}
+  .fi:focus{border-color:var(--blue)}
+  .ep{display:flex;flex-wrap:wrap;gap:7px}
+  .eo{width:40px;height:40px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+  .eo.sel{border-color:var(--blue);background:var(--mist);transform:scale(1.1)}
+
+  /* voice upload */
+  .vupload{border:2px dashed var(--border);border-radius:12px;padding:20px 14px;text-align:center;background:var(--mist);transition:all 0.2s}
+  .vupload:hover{border-color:var(--blue)}
+  .vup-btn{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:10px 20px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
+  .vup-btn:active{transform:scale(0.96)}
+  .vloaded{display:flex;align-items:center;gap:10px;background:#EDF3E6;border:1.5px solid #C2D4AE;border-radius:12px;padding:11px 14px}
+  .vl-name{flex:1;font-size:13px;font-weight:500;color:var(--navy)}
+  .vl-rm{font-size:12px;color:var(--red);cursor:pointer;background:none;border:none;font-weight:600;padding:4px 8px}
+
+  .mactions{display:flex;gap:10px;margin-top:22px}
+  .btn-p{flex:1;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s}
+  .btn-p:active{background:#2A40B0;transform:scale(0.98)}
+  .btn-s{padding:13px 18px;background:none;color:var(--sub);border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer}
+  .btn-s:active{background:var(--mist)}
+  .btn-d{padding:13px 14px;background:none;color:var(--red);border:1.5px solid #FDD;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer}
+  .btn-d:active{background:#FFF0F0}
+
+  /* ── PLAYER BAR ── */
+  .player-bar{position:fixed;bottom:0;left:0;right:0;background:var(--navy);padding:13px 18px;display:flex;align-items:center;gap:12px;z-index:50;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.34,1.2,0.64,1);border-top:2px solid rgba(124,158,87,0.5)}
+  .player-bar.on{transform:translateY(0)}
+  .pwave{display:flex;align-items:center;gap:2px;height:20px}
+  .wb{width:3px;background:var(--gold);border-radius:2px;animation:wv 1.1s ease-in-out infinite}
+  .wb:nth-child(1){height:7px;animation-delay:0s}
+  .wb:nth-child(2){height:13px;animation-delay:0.12s}
+  .wb:nth-child(3){height:19px;animation-delay:0.24s}
+  .wb:nth-child(4){height:12px;animation-delay:0.36s}
+  .wb:nth-child(5){height:6px;animation-delay:0.48s}
+  @keyframes wv{0%,100%{transform:scaleY(0.4)}50%{transform:scaleY(1)}}
+  .pinfo{flex:1}
+  .pname{font-size:14px;font-weight:600;color:#fff}
+  .pfrom{font-size:11px;color:rgba(255,255,255,0.5);margin-top:1px}
+  .pbtn{width:42px;height:42px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--navy);font-weight:bold;flex-shrink:0}
+  .pbtn:active{transform:scale(0.9)}
+  .pclose{background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;padding:4px}
+
+  /* ── CONFETTI ── */
+  .cf{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:200;animation:cff 1.6s ease-out forwards}
+  @keyframes cff{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(300px) rotate(720deg);opacity:0}}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .card-wrapper{animation:fadeUp 0.28s ease both}
+  .page{display:none}.page.active{display:block}
+</style>
+</head>
+<body>
+
+<!-- HOW TO DOWNLOAD BANNER -->
+<div style="background:#2C3520;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;border-bottom:2px solid #C4A84F">
+  <div style="font-size:22px;flex-shrink:0">📥</div>
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:700;color:#C4A84F;margin-bottom:4px">How to download &amp; install</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.6">
+      1. Tap the <b style="color:#fff">⬇ download icon</b> on the file card above this chat (the "ritual" card)<br>
+      2. On iPhone: open <b style="color:#fff">Files app</b> → find <b style="color:#fff">ritual.html</b> → tap it → opens in Safari<br>
+      3. In Safari: tap <b style="color:#fff">Share ↑</b> → <b style="color:#fff">Add to Home Screen</b> → name it <b style="color:#fff">Ritual</b> ✓
+    </div>
+  </div>
+  <button onclick="this.parentElement.style.display='none'" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.5);border-radius:50%;width:24px;height:24px;font-size:14px;cursor:pointer;flex-shrink:0">✕</button>
+</div>
+
+<header>
+  <div class="logo">RI<em>T</em>UAL</div>
+  <div class="date-pill" id="datePill"></div>
+</header>
+
+<div class="greeting">
+  <div class="greeting-left">
+    <div class="greeting-hi" id="greetHi">Good morning ✦</div>
+    <div class="greeting-sub" id="greetSub">Your rituals await</div>
+  </div>
+  <div class="ring-wrap">
+    <svg class="ring-svg" viewBox="0 0 58 58">
+      <circle class="ring-bg" cx="29" cy="29" r="24"/>
+      <circle class="ring-fill" id="ringFill" cx="29" cy="29" r="24"/>
+    </svg>
+    <div class="ring-label"><span id="ringN">0</span><span id="ringT">of 0</span></div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="goTab('today')">Today</button>
+  <button class="tab" onclick="goTab('all')">All</button>
+  <button class="tab" onclick="goTab('stats')">Journey</button>
+</div>
+
+<main>
+  <!-- TODAY -->
+  <div class="page active" id="tab-today">
+    <div class="quote-card"><div class="quote-text" id="qText"></div><div class="quote-author" id="qAuth"></div></div>
+    <div class="swipe-hint">
+      <div class="sh-dot l">←</div> Undo &nbsp;|&nbsp; Complete <div class="sh-dot r">→</div>
+    </div>
+    <div id="listToday"></div>
+    <button class="add-btn" onclick="openModal()"><span style="font-size:19px;color:var(--blue)">＋</span> Add a new ritual</button>
+  </div>
+
+  <!-- ALL -->
+  <div class="page" id="tab-all">
+    <div id="listAll"></div>
+    <button class="add-btn" onclick="openModal()" style="margin-top:6px"><span style="font-size:19px;color:var(--blue)">＋</span> Add a new ritual</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="page" id="tab-stats">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-n" id="sStr">0</div><div class="stat-l">Day Streak</div><div class="streak-dots" id="sDots"></div></div>
+      <div class="stat-card"><div class="stat-n" id="sTot">0</div><div class="stat-l">Total Rituals</div></div>
+      <div class="stat-card"><div class="stat-n" id="sDone">0</div><div class="stat-l">Done Today</div></div>
+      <div class="stat-card"><div class="stat-n" id="sVoice">0</div><div class="stat-l">Voice Reminders</div></div>
+    </div>
+    <div class="quote-card"><div class="quote-text">"You don't rise to the level of your goals. You fall to the level of your systems."</div><div class="quote-author">— James Clear</div></div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="bgClose(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-ttl" id="mTitle">New Ritual</div>
+    <div class="fg"><label class="fl">Name</label><input class="fi" id="iName" type="text" placeholder="e.g. Morning Meditation"></div>
+    <div class="fg"><label class="fl">Time (optional)</label><input class="fi" id="iTime" type="time"></div>
+    <div class="fg"><label class="fl">Icon</label><div class="ep" id="ePicker"></div></div>
+    <div class="fg">
+      <label class="fl">🎙️ Voice Reminder</label>
+      <input type="file" id="vFile" accept=".mp3,.m4a,.wav,.aac,.ogg,.caf,.mp4" style="display:none" onchange="onVoiceFile(event)">
+      <div id="vUpArea" class="vupload">
+        <div style="font-size:30px;margin-bottom:6px">🎵</div>
+        <div style="font-size:14px;font-weight:500;color:var(--navy)">Add a personal voice</div>
+        <div style="font-size:12px;color:var(--sub);margin-top:3px">Amma's or Achan's voice · MP3, M4A, WAV</div>
+        <button type="button" class="vup-btn" onclick="document.getElementById('vFile').click()">🎙️ Choose Audio File</button>
+      </div>
+      <div id="vLoadedArea" style="display:none" class="vloaded">
+        <span style="font-size:20px">🎙️</span>
+        <div class="vl-name" id="vFileName">—</div>
+        <button class="vl-rm" onclick="removeVoice()">✕ Remove</button>
+      </div>
+      <div id="vTagArea" style="display:none;margin-top:10px">
+        <input class="fi" id="vTag" placeholder="Label · e.g. Amma's voice, Achan's reminder">
+      </div>
+    </div>
+    <div class="mactions" id="mActions">
+      <button class="btn-s" onclick="closeModal()">Cancel</button>
+      <button class="btn-p" onclick="saveRoutine()">Save Ritual</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYER BAR -->
+<div class="player-bar" id="playerBar">
+  <div class="pwave" id="pWave">
+    <div class="wb"></div><div class="wb"></div><div class="wb"></div>
+    <div class="wb"></div><div class="wb"></div>
+  </div>
+  <div class="pinfo"><div class="pname" id="pName">—</div><div class="pfrom" id="pFrom">—</div></div>
+  <button class="pbtn" id="pBtn" onclick="togglePlay()">▶</button>
+  <button class="pclose" onclick="closePlayer()">✕</button>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   RITUAL — clean rewrite
+   Audio: Web Audio API + HTMLAudioElement with blob URL
+   Storage: routines in localStorage (no audio data stored)
+   Files: kept in voiceFileMap (session only)
+   ════════════════════════════════════════ */
+
+const STORE  = 'ritual_v4';
+const EMOJIS = ['🌅','🧘','🏃','💪','📖','✍️','🥗','💧','🌿','🎵','🛌','🧠','☕','🚿','🌙','🙏','🌸','⭐','🦋','🔥','💡','🎯','🌊','🍃','🎨','🏋️'];
+const QUOTES = [
+  {t:'Small daily improvements are the key to staggering long-term results.',a:'James Clear'},
+  {t:'We are what we repeatedly do. Excellence, then, is not an act, but a habit.',a:'Aristotle'},
+  {t:'The secret of getting ahead is getting started.',a:'Mark Twain'},
+  {t:'Don\'t count the days, make the days count.',a:'Muhammad Ali'},
+  {t:'Success is the sum of small efforts, repeated day in and day out.',a:'Robert Collier'},
+  {t:'Believe you can and you\'re halfway there.',a:'Theodore Roosevelt'},
+  {t:'Every morning you have two choices: continue sleeping, or wake up and chase them.',a:'Unknown'},
+];
+
+/* ── state ── */
+let routines   = [];
+let editId     = null;
+let pendFile   = null;   // File object for current modal
+let pendName   = null;
+const fMap     = {};     // id → File  (session memory)
+let audioCtx   = null;   // Web Audio API context
+let currentSrc = null;   // AudioBufferSourceNode currently playing
+let gainNode   = null;
+let playing    = false;
+let currentBuf = null;   // decoded ArrayBuffer for current track
+let pauseAt    = 0;      // offset in seconds when paused
+let startedAt  = 0;      // audioCtx.currentTime when playback started
+
+/* ── init ── */
+function init() {
+  try { routines = JSON.parse(localStorage.getItem(STORE)) || []; } catch(e){ routines=[]; }
+  renderDate(); renderGreeting(); buildPicker(); setQuote(); renderAll();
+}
+
+function save() { localStorage.setItem(STORE, JSON.stringify(routines)); }
+
+function todayKey() {
+  const d=new Date(); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function renderDate() {
+  document.getElementById('datePill').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
+}
+function renderGreeting() {
+  const h=new Date().getHours();
+  document.getElementById('greetHi').textContent = h<12?'Good morning ✦':h<17?'Good afternoon ✦':'Good evening ✦';
+}
+function setQuote() {
+  const q=QUOTES[new Date().getDate()%QUOTES.length];
+  document.getElementById('qText').textContent=`"${q.t}"`;
+  document.getElementById('qAuth').textContent=`— ${q.a}`;
+}
+function buildPicker() {
+  const p=document.getElementById('ePicker'); p.innerHTML='';
+  EMOJIS.forEach(e=>{
+    const b=document.createElement('button');
+    b.className='eo'; b.type='button'; b.textContent=e;
+    b.onclick=()=>{ p.querySelectorAll('.eo').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); };
+    p.appendChild(b);
+  });
+}
+
+/* ── progress ── */
+function updateProgress() {
+  const today=todayKey(), total=routines.length;
+  const done=routines.filter(r=>(r.dones||[]).includes(today)).length;
+  document.getElementById('ringN').textContent=done;
+  document.getElementById('ringT').textContent=`of ${total}`;
+  const c=2*Math.PI*24, off=total===0?c:c-(done/total)*c;
+  const rf=document.getElementById('ringFill');
+  rf.style.strokeDasharray=c; rf.style.strokeDashoffset=off;
+  document.getElementById('greetSub').textContent =
+    done===total&&total>0?'🎉 All rituals complete!':`${total-done} ritual${total-done!==1?'s':''} remaining`;
+  document.getElementById('sTot').textContent=total;
+  document.getElementById('sDone').textContent=done;
+  document.getElementById('sVoice').textContent=routines.filter(r=>r.hasVoice).length;
+  updateStreak();
+}
+function updateStreak() {
+  let s=0; const d=new Date();
+  for(let i=0;i<90;i++){
+    const k=`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    if(routines.some(r=>(r.dones||[]).includes(k))){s++;d.setDate(d.getDate()-1);}else break;
+  }
+  document.getElementById('sStr').textContent=s;
+  const bar=document.getElementById('sDots'); bar.innerHTML='';
+  for(let i=6;i>=0;i--){
+    const dd=new Date(); dd.setDate(dd.getDate()-i);
+    const k=`${dd.getFullYear()}-${dd.getMonth()}-${dd.getDate()}`;
+    const on=routines.some(r=>(r.dones||[]).includes(k));
+    const dot=document.createElement('div'); dot.className='sdot'+(on?' on':''); bar.appendChild(dot);
+  }
+}
+
+/* ── render ── */
+function renderAll() { renderList('listToday'); renderList('listAll'); updateProgress(); }
+
+function renderList(cid) {
+  const c=document.getElementById(cid); c.innerHTML='';
+  const today=todayKey();
+  if(!routines.length){
+    c.innerHTML=`<div class="empty"><div class="empty-ico">🌱</div><div class="empty-ttl">Your ritual space awaits</div><div class="empty-sub">Add your first ritual below.<br>Small acts, done daily, shape who you become.</div></div>`;
+    return;
+  }
+  routines.forEach((r,i)=>{
+    const done=(r.dones||[]).includes(today);
+    const wrap=document.createElement('div');
+    wrap.className='card-wrapper'; wrap.style.animationDelay=(i*0.04)+'s';
+    wrap.innerHTML=`<div class="swipe-bg r"><div class="swipe-bg-lbl">✓ Done</div></div><div class="swipe-bg l"><div class="swipe-bg-lbl">↩ Undo</div></div>`;
+    const card=buildCard(r,done);
+    wrap.appendChild(card);
+    attachSwipe(card,wrap,r.id);
+    c.appendChild(wrap);
+  });
+}
+
+function buildCard(r,done){
+  const card=document.createElement('div');
+  card.className='routine-card'+(done?' done':'');
+  const hasV=!!(r.hasVoice&&fMap[r.id]);
+  // Show voice pill even if file not yet loaded (just no play button)
+  const showVPill=r.hasVoice;
+  card.innerHTML=`
+    <button class="chk" onclick="tapCheck('${r.id}',event)">${done?'✓':''}</button>
+    <div class="r-icon">${r.emoji||'⭐'}</div>
+    <div class="r-info">
+      <div class="r-name">${r.name}</div>
+      <div class="r-meta">
+        ${r.time?`<span class="mpill">⏰ ${fmt(r.time)}</span>`:''}
+        ${showVPill?`<span class="mpill">🎙️ ${r.voiceTag||'Voice'}</span>`:''}
+      </div>
+    </div>
+    <div class="r-actions">
+      ${hasV?`<button class="btn-ic play" onclick="playVoice('${r.id}',event)" title="Play">▶</button>`:''}
+      <button class="btn-ic" onclick="openModal('${r.id}',event)" title="Edit">✎</button>
+    </div>`;
+  return card;
+}
+
+function fmt(t){
+  if(!t)return''; const[h,m]=t.split(':'); const hr=parseInt(h);
+  return `${hr%12||12}:${m} ${hr>=12?'PM':'AM'}`;
+}
+
+/* ── swipe ── */
+function attachSwipe(card,wrap,id){
+  let sx=0,sy=0,cx=0,active=false;
+  const TH=72;
+  const bgR=wrap.querySelector('.swipe-bg.r');
+  const bgL=wrap.querySelector('.swipe-bg.l');
+
+  function start(x,y){sx=x;sy=y;cx=0;active=false;}
+  function move(x,y){
+    const dx=x-sx,dy=y-sy;
+    if(!active){if(Math.abs(dy)>Math.abs(dx)+6)return;if(Math.abs(dx)>8)active=true;}
+    if(!active)return;
+    cx=dx; card.classList.add('dragging');
+    card.style.transform=`translateX(${cx}px)`;
+    const p=Math.min(Math.abs(cx)/TH,1);
+    bgR.style.opacity=cx>0?p:0; bgL.style.opacity=cx<0?p:0;
+  }
+  function end(){
+    if(!active){sx=0;return;}
+    card.classList.remove('dragging');
+    card.style.transition='transform 0.22s ease';
+    card.style.transform='';
+    bgR.style.opacity=0; bgL.style.opacity=0;
+    setTimeout(()=>{card.style.transition='';},230);
+    if(cx>TH) markDone(id,true);
+    else if(cx<-TH) markDone(id,false);
+    sx=0; active=false;
+  }
+  card.addEventListener('touchstart',e=>start(e.touches[0].clientX,e.touches[0].clientY),{passive:true});
+  card.addEventListener('touchmove', e=>{if(sx||active)move(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+  card.addEventListener('touchend',  end,{passive:true});
+  card.addEventListener('mousedown', e=>start(e.clientX,e.clientY));
+  document.addEventListener('mousemove',e=>{if(sx||active)move(e.clientX,e.clientY);});
+  document.addEventListener('mouseup',  end);
+}
+
+function markDone(id,complete){
+  const r=routines.find(x=>x.id===id);if(!r)return;
+  const today=todayKey();
+  if(!r.dones)r.dones=[];
+  const i=r.dones.indexOf(today);
+  if(complete&&i===-1){r.dones.push(today);confetti();if(r.hasVoice&&fMap[id])setTimeout(()=>playVoice(id),380);}
+  else if(!complete&&i>-1){r.dones.splice(i,1);}
+  save();renderAll();
+}
+function tapCheck(id,e){
+  e&&e.stopPropagation();
+  const r=routines.find(x=>x.id===id);if(!r)return;
+  const today=todayKey();if(!r.dones)r.dones=[];
+  const i=r.dones.indexOf(today);
+  if(i>-1){r.dones.splice(i,1);}
+  else{r.dones.push(today);confetti();if(r.hasVoice&&fMap[id])setTimeout(()=>playVoice(id),380);}
+  save();renderAll();
+}
+
+/* ── confetti ── */
+function confetti(){
+  const cols=['#3A56C5','#F5C842','#2ECC8A','#5B8AF0','#F05B5B','#fff'];
+  for(let i=0;i<22;i++){
+    const el=document.createElement('div'); el.className='cf';
+    el.style.cssText=`left:${20+Math.random()*60}%;top:30%;background:${cols[i%cols.length]};animation-delay:${Math.random()*0.5}s;animation-duration:${1.2+Math.random()*0.8}s;border-radius:${Math.random()>0.5?'50%':'2px'}`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+  }
+}
+
+/* ── tabs ── */
+function goTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['today','all','stats'][i]===tab));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='stats')updateProgress();
+}
+
+/* ── modal ── */
+function openModal(id=null,e=null){
+  e&&e.stopPropagation();
+  editId=id; pendFile=null; pendName=null;
+  buildPicker();
+  ['iName','iTime','vTag'].forEach(x=>document.getElementById(x).value='');
+  document.getElementById('vFile').value='';
+  document.getElementById('vLoadedArea').style.display='none';
+  document.getElementById('vUpArea').style.display='block';
+  document.getElementById('vTagArea').style.display='none';
+  const ma=document.getElementById('mActions');
+  if(id){
+    const r=routines.find(x=>x.id===id);
+    document.getElementById('mTitle').textContent='Edit Ritual';
+    document.getElementById('iName').value=r.name;
+    document.getElementById('iTime').value=r.time||'';
+    document.getElementById('vTag').value=r.voiceTag||'';
+    document.querySelectorAll('.eo').forEach(b=>{if(b.textContent===r.emoji)b.classList.add('sel');});
+    if(r.hasVoice){
+      const f=fMap[id];
+      if(f){pendFile=f;pendName=r.voiceFileName;showVLoaded(r.voiceFileName);}
+      else{showVLoaded((r.voiceFileName||'voice file')+' — re-upload to play');}
+    }
+    ma.innerHTML=`<button class="btn-d" onclick="delRoutine('${id}')">Delete</button><button class="btn-s" onclick="closeModal()">Cancel</button><button class="btn-p" onclick="saveRoutine()">Save</button>`;
+  } else {
+    document.getElementById('mTitle').textContent='New Ritual';
+    ma.innerHTML=`<button class="btn-s" onclick="closeModal()">Cancel</button><button class="btn-p" onclick="saveRoutine()">Save Ritual</button>`;
+  }
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal(){document.getElementById('overlay').classList.remove('open');editId=null;}
+function bgClose(e){if(e.target===document.getElementById('overlay'))closeModal();}
+
+function saveRoutine(){
+  const name=document.getElementById('iName').value.trim();
+  if(!name){document.getElementById('iName').focus();return;}
+  const time=document.getElementById('iTime').value;
+  const voiceTag=document.getElementById('vTag').value.trim();
+  const sel=document.querySelector('.eo.sel');
+  const emoji=sel?sel.textContent:'⭐';
+  if(editId){
+    const r=routines.find(x=>x.id===editId);
+    Object.assign(r,{name,time,emoji,voiceTag});
+    if(pendFile){r.hasVoice=true;r.voiceFileName=pendName;fMap[editId]=pendFile;}
+  } else {
+    const id=Date.now().toString();
+    routines.push({id,name,time,emoji,voiceTag,hasVoice:!!pendFile,voiceFileName:pendName,dones:[]});
+    if(pendFile)fMap[id]=pendFile;
+  }
+  save();renderAll();closeModal();
+}
+
+function delRoutine(id){
+  if(!confirm('Remove this ritual?'))return;
+  routines=routines.filter(r=>r.id!==id);
+  delete fMap[id]; save();renderAll();closeModal();
+}
+
+/* ── voice upload ── */
+function onVoiceFile(e){
+  const f=e.target.files[0];if(!f)return;
+  pendFile=f; pendName=f.name; showVLoaded(f.name);
+}
+function showVLoaded(name){
+  document.getElementById('vFileName').textContent=name;
+  document.getElementById('vLoadedArea').style.display='flex';
+  document.getElementById('vUpArea').style.display='none';
+  document.getElementById('vTagArea').style.display='block';
+}
+function removeVoice(){
+  pendFile=null;pendName=null;
+  document.getElementById('vLoadedArea').style.display='none';
+  document.getElementById('vUpArea').style.display='block';
+  document.getElementById('vTagArea').style.display='none';
+  document.getElementById('vFile').value='';
+  if(editId){const r=routines.find(x=>x.id===editId);if(r){r.hasVoice=false;r.voiceFileName=null;r.voiceTag='';delete fMap[editId];save();renderAll();}}
+}
+
+/* ════════════════════════════════
+   AUDIO — Web Audio API
+   Uses AudioContext + decodeAudioData for maximum Safari compatibility.
+   Falls back to HTMLAudioElement blob URL if Web Audio unavailable.
+   ════════════════════════════════ */
+
+function getAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx=new(window.AudioContext||window.webkitAudioContext)(); }
+    catch(err){ console.warn('AudioContext unavailable',err); }
+  }
+  return audioCtx;
+}
+
+function stopCurrent(){
+  if(currentSrc){try{currentSrc.stop();}catch(e){}currentSrc=null;}
+  playing=false; pauseAt=0; startedAt=0;
+}
+
+function playVoice(id,e){
+  e&&e.stopPropagation();
+  const r=routines.find(x=>x.id===id);
+  if(!r)return;
+  const file=fMap[id];
+  if(!file){
+    alert('Voice file not in memory.\n\nPlease edit this ritual and re-upload the audio file.');
+    return;
+  }
+
+  // Update UI
+  document.getElementById('pName').textContent=r.name;
+  document.getElementById('pFrom').textContent=r.voiceTag||'Voice reminder';
+  document.getElementById('playerBar').classList.add('on');
+  document.getElementById('pBtn').textContent='⏸';
+  wavePlay(true);
+  playing=true;
+
+  // Read file as ArrayBuffer for Web Audio API
+  const ctx=getAudioCtx();
+  if(ctx){
+    stopCurrent();
+    const fr=new FileReader();
+    fr.onload=ev=>{
+      ctx.decodeAudioData(ev.target.result.slice(0), // slice to copy buffer
+        function(buffer){
+          currentBuf=buffer;
+          playBuffer(buffer, 0);
+        },
+        function(err){
+          console.warn('decodeAudioData failed, trying blob URL fallback:',err);
+          blobURLFallback(file, r);
+        }
+      );
+    };
+    fr.onerror=()=>blobURLFallback(file,r);
+    fr.readAsArrayBuffer(file);
+  } else {
+    blobURLFallback(file,r);
+  }
+}
+
+function playBuffer(buffer, offset){
+  const ctx=getAudioCtx();
+  if(!ctx)return;
+  if(currentSrc){try{currentSrc.stop();}catch(e){}}
+  const src=ctx.createBufferSource();
+  src.buffer=buffer;
+  gainNode=ctx.createGain();
+  gainNode.gain.value=1;
+  src.connect(gainNode);
+  gainNode.connect(ctx.destination);
+  src.start(0, offset);
+  startedAt=ctx.currentTime - offset;
+  currentSrc=src;
+  playing=true;
+  src.onended=()=>{
+    // Only reset if we didn't manually stop
+    if(playing){
+      playing=false;
+      document.getElementById('pBtn').textContent='▶';
+      wavePlay(false);
+    }
+  };
+}
+
+function blobURLFallback(file, r){
+  // Last resort: HTMLAudioElement with blob URL
+  try{
+    const url=URL.createObjectURL(file);
+    const a=new Audio(url);
+    a.play().then(()=>{
+      document.getElementById('pBtn').textContent='⏸';
+      wavePlay(true);
+      playing=true;
+      a.onended=()=>{playing=false;document.getElementById('pBtn').textContent='▶';wavePlay(false);URL.revokeObjectURL(url);};
+      // Store reference so togglePlay can pause it
+      currentSrc={_htmlAudio:a, stop:()=>{a.pause();URL.revokeObjectURL(url);}};
+    }).catch(err=>{
+      URL.revokeObjectURL(url);
+      playing=false;
+      document.getElementById('pBtn').textContent='▶';
+      wavePlay(false);
+      alert('Audio playback is blocked in this webview.\n\nTo use voice reminders:\n1. Tap ··· (top right)\n2. Choose "Open in Browser"\n3. Open in Safari\n\nVoice playback works perfectly in Safari!');
+    });
+  } catch(err){
+    playing=false;
+    alert('Please open this app in Safari to use voice reminders.');
+  }
+}
+
+function togglePlay(){
+  const ctx=getAudioCtx();
+  // HTMLAudio fallback path
+  if(currentSrc&&currentSrc._htmlAudio){
+    const a=currentSrc._htmlAudio;
+    if(playing){a.pause();playing=false;document.getElementById('pBtn').textContent='▶';wavePlay(false);}
+    else{a.play();playing=true;document.getElementById('pBtn').textContent='⏸';wavePlay(true);}
+    return;
+  }
+  // Web Audio path
+  if(!ctx||!currentBuf)return;
+  if(playing){
+    pauseAt=ctx.currentTime-startedAt;
+    stopCurrent();
+    playing=false;
+    document.getElementById('pBtn').textContent='▶';
+    wavePlay(false);
+  } else {
+    playBuffer(currentBuf, pauseAt);
+    playing=true;
+    document.getElementById('pBtn').textContent='⏸';
+    wavePlay(true);
+  }
+}
+
+function closePlayer(){
+  stopCurrent();
+  if(currentSrc&&currentSrc._htmlAudio){try{currentSrc._htmlAudio.pause();}catch(e){}}
+  currentBuf=null; currentSrc=null;
+  playing=false;
+  document.getElementById('playerBar').classList.remove('on');
+  document.getElementById('pBtn').textContent='▶';
+  wavePlay(false);
+}
+
+function wavePlay(on){
+  document.querySelectorAll('.wb').forEach(b=>b.style.animationPlayState=on?'running':'paused');
+}
+
+init();
+</script>
+</body>
+</html>
